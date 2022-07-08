@@ -1,0 +1,11 @@
+version: "3.7"
+
+services:
+  kerberos:
+    image: "conceptica/test_kerberos_server"
+    ports:
+      - "88:88"
+      - "750:750"
+    volumes:
+      - ./keytab:/app/keytab
+    env_file: ./.envs/.development/.kerberos
