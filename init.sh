@@ -2,13 +2,15 @@
 # Based on https://github.com/ist-dsi/docker-kerberos/blob/master/kdc-kadmin/init-script.sh
 
 export REALM=${REALM:=CONCEPTICA.LOCAL}
-export KDC_KADMIN_SERVER=${KDC_KADMIN_SERVER:=kdc.conceptica.local}
+DEFAULT_DOMAIN=$(echo $REALM | awk '{print tolower($0)}')
+DOMAIN=${DOMAIN:=$DEFAULT_DOMAIN}
+export KDC_KADMIN_SERVER=${KDC_KADMIN_SERVER:=kdc.$DOMAIN}
 PASSWORD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1)
-export TEST_USER_PASSWORD=${TEST_USER_PASSWORD:=PASSWORD}
+export TEST_USER_PASSWORD=${TEST_USER_PASSWORD:=$PASSWORD}
 
 echo "REALM: $REALM"
 echo "KDC_KADMIN_SERVER: $KDC_KADMIN_SERVER"
-echo "TEST_USER_PASSWORD: $KADMIN_PASSWORD"
+echo "TEST_USER_PASSWORD: $TEST_USER_PASSWORD"
 
 echo "Creating /etc/krb5.conf"
 
@@ -66,8 +68,10 @@ echo "Creating services principals"
 mkdir -p ./keytab
 rm -f ./keytab/apache2.keytab
 
-kadmin.local -q "addprinc -randkey HTTP/ipharm.conceptica.local"
-kadmin.local -q "ktadd -k ./keytab/apache2.keytab HTTP/ipharm.conceptica.local"
+kadmin.local -q "addprinc -randkey HTTP/ipharm.${DOMAIN}"
+kadmin.local -q "ktadd -k ./keytab/apache2.keytab HTTP/ipharm.${DOMAIN}"
+kadmin.local -q "addprinc -randkey HTTP/izadanky.${DOMAIN}"
+kadmin.local -q "ktadd -k ./keytab/apache2.keytab HTTP/izadanky.${DOMAIN}"
 
 chmod a+r ./keytab/apache2.keytab
 
