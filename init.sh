@@ -63,6 +63,13 @@ $TEST_USER_PASSWORD
 $TEST_USER_PASSWORD
 EOF
 
+echo "Creating manager user principal"
+
+kadmin.local -q "addprinc manager" <<EOF
+$TEST_USER_PASSWORD
+$TEST_USER_PASSWORD
+EOF
+
 echo "Creating services principals"
 
 mkdir -p ./keytab
@@ -70,6 +77,8 @@ rm -f ./keytab/apache2.keytab
 
 kadmin.local -q "addprinc -randkey HTTP/ipharm.${DOMAIN}"
 kadmin.local -q "ktadd -k ./keytab/apache2.keytab HTTP/ipharm.${DOMAIN}"
+kadmin.local -q "addprinc -randkey HTTP/ipharm-fe.${DOMAIN}"
+kadmin.local -q "ktadd -k ./keytab/apache2.keytab HTTP/ipharm-fe.${DOMAIN}"
 kadmin.local -q "addprinc -randkey HTTP/izadanky.${DOMAIN}"
 kadmin.local -q "ktadd -k ./keytab/apache2.keytab HTTP/izadanky.${DOMAIN}"
 
